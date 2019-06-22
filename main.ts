@@ -1,4 +1,4 @@
-import { parseAmlCode } from "./src/aml/parser";
+import { parseAmlCode } from "./lib/aml/parser";
 
 const data = `<Layout direction="row">
 	<Label text="hey man"/>
