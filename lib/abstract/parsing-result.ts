@@ -17,4 +17,8 @@ export class BaseParsingResult<T> implements ICodeParsingResult<T> {
 		}
 		return undefined;
 	}
+
+	get tokens(): IToken<T>[] {
+		return this._tokens.slice();
+	}
 }
