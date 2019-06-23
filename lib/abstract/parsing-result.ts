@@ -1,8 +1,9 @@
 import { ICodeParsingResult } from "../interfaces/i-code-parsing-result";
 import { IToken } from "../interfaces/i-token";
+import { IDiagnostic } from "../interfaces/i-diagnostic";
 
-export class BaseParsingResult<T> implements ICodeParsingResult<T> {
-	constructor(private _tokens: IToken<T>[]) {
+export class BaseParsingResult<T, U> implements ICodeParsingResult<T, U> {
+	constructor(private _tokens: IToken<T>[], private _diagnostics: IDiagnostic<U>[]) {
 
 	}
 
@@ -20,5 +21,9 @@ export class BaseParsingResult<T> implements ICodeParsingResult<T> {
 
 	get tokens(): IToken<T>[] {
 		return this._tokens.slice();
+	}
+
+	get diagnostics(): IDiagnostic<U>[] {
+		return this._diagnostics.slice();
 	}
 }

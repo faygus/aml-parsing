@@ -26,16 +26,16 @@ export class StringParser {
 		return this;
 	}
 
-	next(length?: number): boolean {
+	next(length?: number): StringParser {
 		if (this._offset >= this._data.length) {
-			return false;
+			return this;
 		}
 		const delta = length === undefined ? 1 : length;
 		this._offset += delta;
 		if (this._offset > this._data.length) {
 			this._offset = this._data.length;
 		}
-		return this._offset < this._data.length;
+		return this;
 	}
 
 	parseToken(exclude?: string[]): string {

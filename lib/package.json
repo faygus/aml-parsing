@@ -1,0 +1,9 @@
+{
+  "name": "aml-parsing",
+  "version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"types": "index.d.ts",
+  "author": "Jean-Samuel Durier",
+  "license": "ISC"
+}

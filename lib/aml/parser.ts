@@ -7,13 +7,16 @@ import { ParsingPath } from "./parsing-path";
 import { tokens } from "./tokens";
 import { AmlToken } from "./types/aml-token";
 import { AmlTokenType } from "./types/token-type";
+import { nonEscapedValidator } from "../utils/escape";
+import { AmlDiagnosticType } from "./types/diagnostic-type";
 
-export const parseAmlCode: ICodeParserFunction<AmlTokenType> = (data: string): ICodeParsingResult<AmlTokenType> => {
-	const parser = new AmlCodeParser(data);
-	return parser.parse();
-};
+export const parseAmlCode: ICodeParserFunction<AmlTokenType, AmlDiagnosticType> =
+	(data: string): ICodeParsingResult<AmlTokenType, AmlDiagnosticType> => {
+		const parser = new AmlCodeParser(data);
+		return parser.parse();
+	};
 
-export class AmlCodeParser extends BaseCodeParser<AmlTokenType> {
+export class AmlCodeParser extends BaseCodeParser<AmlTokenType, AmlDiagnosticType> {
 	private _nodesPath = new ParsingPath();
 
 	constructor(data: string) {
@@ -95,7 +98,8 @@ export class AmlCodeParser extends BaseCodeParser<AmlTokenType> {
 		const attributeNameInfos = this._stringParser.navigateUntil([tokens.equal, tokens.tagCloseBracket, ...whiteSpaceCharacters]);
 		const attributeName = attributeNameInfos.text;
 		const attributeNameOffset = attributeNameInfos.range.start;
-		if (attributeNameInfos.stopPattern === tokens.tagCloseBracket) {
+		if (attributeNameInfos.stopPattern === tokens.tagCloseBracket ||
+			attributeNameInfos.stopPattern === '' || attributeNameInfos.stopPattern === undefined) {
 			// TODO add token without value attributeName, attributeNameOffset - length
 			return;
 		}
@@ -112,24 +116,9 @@ export class AmlCodeParser extends BaseCodeParser<AmlTokenType> {
 		const firstAttributeValueChar = this._stringParser.navigateToFirstNonEmptyChar().currentChar;
 		if (firstAttributeValueChar === tokens.quote) {
 			this._stringParser.next();
-			const attributeValueInfos = this._stringParser.navigateUntil({
-				isValid(data) {
-					if (data.length === 0) return null;
-					const reversedString = data.split('').reverse().join('');
-					if (reversedString[0] !== tokens.quote) return null;
-					let escaped = false;
-					for (let i = 1; i < reversedString.length; i++) {
-						const char = reversedString[i];
-						if (char !== tokens.escape) {
-							return escaped ? null : {
-								stopPattern: tokens.quote
-							};
-						}
-						escaped = !escaped;
-					}
-					return null;
-				}
-			});
+			const attributeValueInfos = this._stringParser.navigateUntil(
+				nonEscapedValidator(tokens.quote, tokens.escape)
+			);
 			const attributeValue = attributeValueInfos.text;
 			this._resultBuilder.addToken(new AmlToken(attributeValueInfos.range.start,
 				AmlTokenType.ATTRIBUTE_VALUE, attributeValue));

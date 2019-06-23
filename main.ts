@@ -1,10 +1,12 @@
 import { parseAmlCode } from "./lib/aml/parser";
+import { parseJsonCode } from "./lib/json/json-parser";
 
-const data = `<Layout direction="row">
-	<Label text="hey man"/>
-</Layout>`;
-const parsingResult = parseAmlCode(data);
-console.log('parsingResult', parsingResult);
-/*const token = parsingResult.getTokenAt(10); //36);
-console.log(token);
-*/
+
+const data = `{
+	foo: {
+		bar: "hey man"
+	},
+	hello: "yeah !!!!"
+}`;
+const res = parseJsonCode(data);
+console.log(res);

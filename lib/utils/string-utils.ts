@@ -12,6 +12,19 @@ export class StringUtils {
 		const res = char.match(/[a-zA-Z]/);
 		return res !== null && res.length > 0;
 	}
+	static lastCharIsEscaped(str: string, escapeToken: string): boolean {
+		if (str.length < 2) return false;
+		const reversedString = str.split('').reverse().join('');
+		let escaped = false;
+		for (let i = 1; i < reversedString.length; i++) {
+			const char = reversedString[i];
+			if (char !== escapeToken) {
+				return escaped;
+			}
+			escaped = !escaped;
+		}
+		return false;
+	}
 }
 
 export const whiteSpaceCharacters = [' ', '\t', '\n', '\r'];

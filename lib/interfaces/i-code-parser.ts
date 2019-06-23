@@ -1,3 +1,3 @@
 import { ICodeParsingResult } from "./i-code-parsing-result";
 
-export type ICodeParser<T> = (data: string) => ICodeParsingResult<T>;
+export type ICodeParser<T, U> = (data: string) => ICodeParsingResult<T, U>;
