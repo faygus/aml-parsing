@@ -1,28 +1,27 @@
-import { IToken } from "../interfaces/i-token";
 import { ICodeParsingResult } from "../interfaces/i-code-parsing-result";
-import { BaseParsingResult } from "./parsing-result";
 import { IDiagnostic } from "../interfaces/i-diagnostic";
-import { BaseToken } from "./base-token";
+import { IToken } from "../interfaces/i-token";
+import { BaseParsingResult } from "./parsing-result";
 
-export class BaseParsingResultBuilder<T, U> {
-	protected _tokens: IToken<T>[] = [];
-	protected _diagnostics: IDiagnostic<U>[] = [];
+export class BaseParsingResultBuilder<TokenWithContextType extends { token: IToken<any>, context: any }, DiagnosticType> {
+	protected _tokens: TokenWithContextType[] = [];
+	protected _diagnostics: IDiagnostic<DiagnosticType>[] = [];
 
-	addToken(token: IToken<T>): void {
+	addToken(token: TokenWithContextType): void {
 		this._tokens.push(token);
 	}
 
-	addDiagnostic(diagnostic: IDiagnostic<U>): void {
+	addDiagnostic(diagnostic: IDiagnostic<DiagnosticType>): void {
 		this._diagnostics.push(diagnostic);
 	}
 
-	getResult(): ICodeParsingResult<T, U> {
+	getResult(): ICodeParsingResult<TokenWithContextType, DiagnosticType> {
 		return new BaseParsingResult(this._tokens, this._diagnostics);
 	}
 
-	merge(data: ICodeParsingResult<T, U>, offset: number): void {
+	merge(data: ICodeParsingResult<TokenWithContextType, DiagnosticType>, offset: number): void {
 		this._tokens.push(...data.tokens.map(t => {
-			(<any>t)._offset += offset; // TODO
+			(<any>t.token)._offset += offset; // TODO
 			return t;
 		}));
 		this._diagnostics.push(...data.diagnostics.map(d => {

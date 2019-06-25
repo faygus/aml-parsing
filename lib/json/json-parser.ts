@@ -7,16 +7,23 @@ import { whiteSpaceCharacters } from "../utils/string-utils";
 import { tokens } from "./tokens";
 import { JsonDiagnostic } from "./types/diagnostic";
 import { JsonDiagnosticType } from "./types/diagnostic-type";
-import { JsonToken } from "./types/token";
+import { JsonToken, JsonTokenWithContext } from "./types/token";
 import { JsonTokenType } from "./types/token-type";
+import { JsonTokenWithContextTypes } from "./types/token-with-context";
+import { JsonKeyCxt } from "./types/context/key";
+import { JsonPropertyValueCxt } from "./types/context/value";
+import { JsonTreeParser } from "./tree-parser";
+import { JsonElement, JsonProperty } from "./types/context/utils/element";
 
-export const parseJsonCode: ICodeParserFunction<JsonTokenType, JsonDiagnosticType> =
-	(data: string): ICodeParsingResult<JsonTokenType, JsonDiagnosticType> => {
+export const parseJsonCode: ICodeParserFunction<JsonTokenWithContextTypes, JsonDiagnosticType> =
+	(data: string): ICodeParsingResult<JsonTokenWithContextTypes, JsonDiagnosticType> => {
 		const parser = new JsonCodeParser(data);
 		return parser.parse();
 	};
 
-export class JsonCodeParser extends BaseCodeParser<JsonTokenType, JsonDiagnosticType> {
+export class JsonCodeParser extends BaseCodeParser<JsonTokenWithContextTypes, JsonDiagnosticType> {
+
+	private _treeParser = new JsonTreeParser();
 
 	constructor(data: string) {
 		super(data);
@@ -41,7 +48,7 @@ export class JsonCodeParser extends BaseCodeParser<JsonTokenType, JsonDiagnostic
 		if (this._stringParser.currentChar === tokens.quote) {
 			this._stringParser.next();
 			this.analyseQuotedKey();
-		} else {
+		} else { // TODO simple quote, back quote
 			this.analyseNonQuotedKey();
 		}
 	}
@@ -50,8 +57,8 @@ export class JsonCodeParser extends BaseCodeParser<JsonTokenType, JsonDiagnostic
 		const keyInfos = this._stringParser.navigateUntil(
 			nonEscapedValidator(tokens.quote, tokens.escape)
 		);
-		const token = new JsonToken(keyInfos.range.start, JsonTokenType.KEY, keyInfos.text);
-		this._resultBuilder.addToken(token);
+		this.registerKey(keyInfos.range.start, keyInfos.text);
+		// this._resultBuilder.addToken(token); // TODO context
 		if (this._stringParser.navigateToFirstNonEmptyChar().currentChar !== tokens.colon) {
 			// expected colon
 			this.emitDiagnosticExpectedColon();
@@ -68,8 +75,7 @@ export class JsonCodeParser extends BaseCodeParser<JsonTokenType, JsonDiagnostic
 			tokens.closeBracket,
 			...whiteSpaceCharacters
 		]);
-		const token = new JsonToken(parsingInfos.range.start, JsonTokenType.KEY, parsingInfos.text);
-		this._resultBuilder.addToken(token);
+		this.registerKey(parsingInfos.range.start, parsingInfos.text);
 		if (parsingInfos.stopPattern === tokens.closeBracket) {
 			return; // end of parsing
 		}
@@ -101,8 +107,7 @@ export class JsonCodeParser extends BaseCodeParser<JsonTokenType, JsonDiagnostic
 
 	private analyseStringValue(): void {
 		const parsingInfos = this._stringParser.navigateUntil(nonEscapedValidator(tokens.quote, tokens.escape));
-		const token = new JsonToken(parsingInfos.range.start, JsonTokenType.STRING_VALUE, parsingInfos.text);
-		this._resultBuilder.addToken(token);
+		this.registerLiteralValue(parsingInfos.range.start, parsingInfos.text);
 		if (!this._stringParser.currentChar) return;
 		this._stringParser.navigateToFirstNonEmptyChar();
 		this.analyseAfterValue();
@@ -112,7 +117,13 @@ export class JsonCodeParser extends BaseCodeParser<JsonTokenType, JsonDiagnostic
 		// first char is {
 		const parser = new JsonCodeParser(this._stringParser.nextString);
 		const parsingResult = parser.parse();
+		for (const token of parsingResult.tokens) {
+			const tree = this._treeParser.currentElement;
+			tree.properties.slice().reverse()[0].value = token.context.parents;
+			token.context.parents = tree;
+		}
 		this._resultBuilder.merge(parsingResult, this._stringParser.offset);
+		// TODO merge the treeParser of the parent parser
 		this._stringParser.next(parser._stringParser.offset).navigateToFirstNonEmptyChar();
 		this.analyseAfterValue();
 	}
@@ -141,5 +152,24 @@ export class JsonCodeParser extends BaseCodeParser<JsonTokenType, JsonDiagnostic
 	private emitDiagnosticExpectedComma(): void {
 		const diagnostic = new JsonDiagnostic(this._stringParser.offset, JsonDiagnosticType.EXPECTED_COMMA);
 		this._resultBuilder.addDiagnostic(diagnostic);
+	}
+
+	private registerKey(offset: number, key: string): void {
+		const token = new JsonToken(offset, JsonTokenType.KEY, key);
+		const context = new JsonKeyCxt();
+		context.parents = this._treeParser.currentElement;
+		const tokenWithContext = new JsonTokenWithContext(token, context);
+		this._resultBuilder.addToken(tokenWithContext);
+		this._treeParser.addKey(key);
+	}
+
+	private registerLiteralValue(offset: number, value: string): void {
+		const token = new JsonToken(offset, JsonTokenType.STRING_VALUE, value);
+		const context = new JsonPropertyValueCxt();
+		context.key = this._treeParser.curentKeyEdited;
+		context.parents = this._treeParser.currentElement;
+		const tokenWithContext = new JsonTokenWithContext(token, context);
+		this._resultBuilder.addToken(tokenWithContext);
+		this._treeParser.setLiteralValue(value);
 	}
 }

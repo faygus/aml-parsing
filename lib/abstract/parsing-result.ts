@@ -1,29 +1,32 @@
 import { ICodeParsingResult } from "../interfaces/i-code-parsing-result";
-import { IToken } from "../interfaces/i-token";
 import { IDiagnostic } from "../interfaces/i-diagnostic";
+import { IToken } from "../interfaces/i-token";
 
-export class BaseParsingResult<T, U> implements ICodeParsingResult<T, U> {
-	constructor(private _tokens: IToken<T>[], private _diagnostics: IDiagnostic<U>[]) {
+export class BaseParsingResult<TokenWithContextType extends { token: IToken<any>, context: any }, DiagnosticType>
+	implements ICodeParsingResult<TokenWithContextType, DiagnosticType> {
+	constructor(
+		private _tokens: TokenWithContextType[],
+		private _diagnostics: IDiagnostic<DiagnosticType>[]) {
 
 	}
 
-	getTokenAt(offset: number): IToken<T> | undefined {
-		for (const token of this._tokens) {
-			if (offset < token.range.start) {
+	getTokenAt(offset: number): TokenWithContextType | undefined {
+		for (const tokenWithContext of this._tokens) {
+			if (offset < tokenWithContext.token.range.start) {
 				return undefined;
 			}
-			if (offset <= token.range.end) {
-				return token;
+			if (offset <= tokenWithContext.token.range.end) {
+				return tokenWithContext;
 			}
 		}
 		return undefined;
 	}
 
-	get tokens(): IToken<T>[] {
+	get tokens(): TokenWithContextType[] {
 		return this._tokens.slice();
 	}
 
-	get diagnostics(): IDiagnostic<U>[] {
+	get diagnostics(): IDiagnostic<DiagnosticType>[] {
 		return this._diagnostics.slice();
 	}
 }

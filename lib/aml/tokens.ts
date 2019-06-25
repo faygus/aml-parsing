@@ -1,8 +1,10 @@
 export const tokens = {
-	tagOpenBracket: '<',
+	openTagBracket: '<',
+	closeTagBracket: '>',
 	escape: '\\',
 	quote: '"',
 	equal: '=',
-	tagCloseBracket: '>',
-	selfCloseToken: `/>`
+	selfCloseToken: `/>`,
+	openObjectBracket: '{',
+	closeObjectBracket: '}',
 };

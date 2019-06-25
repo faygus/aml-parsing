@@ -5,3 +5,8 @@ export interface IToken<T> {
 	type: T;
 	text: string;
 }
+
+export interface ITokenWithContext<T, U> {
+	token: IToken<T>;
+	context: U;
+}

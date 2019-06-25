@@ -1,8 +1,9 @@
-import { IToken } from "./i-token";
 import { IDiagnostic } from "./i-diagnostic";
+import { IToken } from "./i-token";
 
-export interface ICodeParsingResult<T, U> {
-	getTokenAt(offset: number): IToken<T> | undefined;
-	tokens: IToken<T>[];
-	diagnostics: IDiagnostic<U>[];
+export interface ICodeParsingResult<TokenWithContextType extends { token: IToken<any>, context: any }, DiagnosticType> {
+
+	getTokenAt(offset: number): TokenWithContextType | undefined;
+	tokens: TokenWithContextType[];
+	diagnostics: IDiagnostic<DiagnosticType>[];
 }
