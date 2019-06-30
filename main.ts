@@ -1,8 +1,9 @@
-import { parseAmlCode } from "./lib/aml/parser";
+import { parseAmlCode } from "./lib/aml/parsing/parser";
+import { parseJsonCode } from "./lib";
 
 
-const data = `<Layout direction="row">
-	<Label text="hey man" style={color:"black", size:"small"}/>
-</Layout>`;
-const res = parseAmlCode(data);
-console.log(JSON.stringify(res));
+const data = `{toto: {tata: ""`;
+const res = parseJsonCode(data);
+console.log(JSON.stringify(res.getTokenAt(15)));
+
+// console.log(JSON.stringify(res));

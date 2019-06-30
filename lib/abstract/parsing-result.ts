@@ -2,11 +2,16 @@ import { ICodeParsingResult } from "../interfaces/i-code-parsing-result";
 import { IDiagnostic } from "../interfaces/i-diagnostic";
 import { IToken } from "../interfaces/i-token";
 
-export class BaseParsingResult<TokenWithContextType extends { token: IToken<any>, context: any }, DiagnosticType>
-	implements ICodeParsingResult<TokenWithContextType, DiagnosticType> {
+export class ParsingResult<
+	TokenWithContextType extends { token: IToken<any>, context: any },
+	DiagnosticType,
+	InterpretationType>
+	implements ICodeParsingResult<TokenWithContextType, DiagnosticType, InterpretationType> {
+
 	constructor(
 		private _tokens: TokenWithContextType[],
-		private _diagnostics: IDiagnostic<DiagnosticType>[]) {
+		private _diagnostics: IDiagnostic<DiagnosticType>[],
+		private _interpretation: InterpretationType) {
 
 	}
 
@@ -28,5 +33,9 @@ export class BaseParsingResult<TokenWithContextType extends { token: IToken<any>
 
 	get diagnostics(): IDiagnostic<DiagnosticType>[] {
 		return this._diagnostics.slice();
+	}
+
+	get interpretation(): InterpretationType {
+		return this._interpretation;
 	}
 }

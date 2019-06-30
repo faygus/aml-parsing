@@ -25,6 +25,12 @@ export class StringUtils {
 		}
 		return false;
 	}
+	static antiCapitalize(tag: string): string {
+		return tag.charAt(0).toLowerCase() + tag.slice(1);
+	}
+	static capitalize(tag: string): string {
+		return tag.charAt(0).toUpperCase() + tag.slice(1);
+	}
 }
 
 export const whiteSpaceCharacters = [' ', '\t', '\n', '\r'];

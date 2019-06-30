@@ -12,5 +12,6 @@ export class JsonProperty {
 		if (name) {
 			this.name = name;
 		}
+		this.value = new JsonElement();
 	}
 }

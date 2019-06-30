@@ -4,26 +4,37 @@ import { ICodeParsingResult } from "../interfaces/i-code-parsing-result";
 import { nonEscapedValidator } from "../utils/escape";
 import { StringParser } from "../utils/string-parser";
 import { whiteSpaceCharacters } from "../utils/string-utils";
+import { IKeyValue } from "./interpreter/key-value";
 import { tokens } from "./tokens";
+import { JsonTreeParser } from "./tree-parser";
+import { JsonKeyCxt } from "./types/context/key";
+import { JsonPropertyValueCxt } from "./types/context/value";
 import { JsonDiagnostic } from "./types/diagnostic";
 import { JsonDiagnosticType } from "./types/diagnostic-type";
 import { JsonToken, JsonTokenWithContext } from "./types/token";
 import { JsonTokenType } from "./types/token-type";
 import { JsonTokenWithContextTypes } from "./types/token-with-context";
-import { JsonKeyCxt } from "./types/context/key";
-import { JsonPropertyValueCxt } from "./types/context/value";
-import { JsonTreeParser } from "./tree-parser";
-import { JsonElement, JsonProperty } from "./types/context/utils/element";
+import { JsonInterpreter } from "./interpreter/interpreter";
 
-export const parseJsonCode: ICodeParserFunction<JsonTokenWithContextTypes, JsonDiagnosticType> =
-	(data: string): ICodeParsingResult<JsonTokenWithContextTypes, JsonDiagnosticType> => {
+export const parseJsonCode: ICodeParserFunction<
+	JsonTokenWithContextTypes,
+	JsonDiagnosticType,
+	IKeyValue> =
+	(data: string): ICodeParsingResult<
+		JsonTokenWithContextTypes,
+		JsonDiagnosticType,
+		IKeyValue> => {
 		const parser = new JsonCodeParser(data);
 		return parser.parse();
 	};
 
-export class JsonCodeParser extends BaseCodeParser<JsonTokenWithContextTypes, JsonDiagnosticType> {
+export class JsonCodeParser extends BaseCodeParser<
+	JsonTokenWithContextTypes,
+	JsonDiagnosticType,
+	IKeyValue> {
 
 	private _treeParser = new JsonTreeParser();
+	private _interpreter = new JsonInterpreter();
 
 	constructor(data: string) {
 		super(data);
@@ -117,13 +128,7 @@ export class JsonCodeParser extends BaseCodeParser<JsonTokenWithContextTypes, Js
 		// first char is {
 		const parser = new JsonCodeParser(this._stringParser.nextString);
 		const parsingResult = parser.parse();
-		for (const token of parsingResult.tokens) {
-			const tree = this._treeParser.currentElement;
-			tree.properties.slice().reverse()[0].value = token.context.parents;
-			token.context.parents = tree;
-		}
-		this._resultBuilder.merge(parsingResult, this._stringParser.offset);
-		// TODO merge the treeParser of the parent parser
+		this.registerJsonObject(parsingResult);
 		this._stringParser.next(parser._stringParser.offset).navigateToFirstNonEmptyChar();
 		this.analyseAfterValue();
 	}
@@ -161,6 +166,7 @@ export class JsonCodeParser extends BaseCodeParser<JsonTokenWithContextTypes, Js
 		const tokenWithContext = new JsonTokenWithContext(token, context);
 		this._resultBuilder.addToken(tokenWithContext);
 		this._treeParser.addKey(key);
+		this._interpreter.addKey(key);
 	}
 
 	private registerLiteralValue(offset: number, value: string): void {
@@ -171,5 +177,19 @@ export class JsonCodeParser extends BaseCodeParser<JsonTokenWithContextTypes, Js
 		const tokenWithContext = new JsonTokenWithContext(token, context);
 		this._resultBuilder.addToken(tokenWithContext);
 		this._treeParser.setLiteralValue(value);
+		const interpretation = this._interpreter.setValue(value);
+		this._resultBuilder.setInterpretation(interpretation);
+	}
+
+	private registerJsonObject(parsingResult: ICodeParsingResult<JsonTokenWithContextTypes, JsonDiagnosticType, IKeyValue>): void {
+		for (const token of parsingResult.tokens) {
+			const tree = this._treeParser.currentElement;
+			tree.properties.slice().reverse()[0].value = token.context.parents;
+			token.context.parents = tree;
+		}
+		this._resultBuilder.merge(parsingResult, this._stringParser.offset);
+		// TODO merge the treeParser of the parent parser
+		const intepretation = this._interpreter.setValue(parsingResult.interpretation);
+		this._resultBuilder.setInterpretation(intepretation);
 	}
 }
