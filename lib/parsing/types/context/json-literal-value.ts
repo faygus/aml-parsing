@@ -1,4 +1,4 @@
-import { JsonPropertyValueCxt } from "../../../json/types/context/value";
+import { JsonPropertyValueCxt } from "../../sub-parsing/json/types/context/value";
 import { AmlElement } from "./utils/element";
 import { IAmlElementsTree } from "./utils/elements-tree";
 

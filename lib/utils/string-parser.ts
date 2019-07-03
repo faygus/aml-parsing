@@ -1,4 +1,4 @@
-import { StringUtils } from "./string-utils";
+import { StringUtils, whiteSpaceCharacters } from "./string-utils";
 import { StringValidator } from "./string-validator";
 import { StringNavigationInfos } from "./string-navigation-infos";
 
@@ -35,6 +35,12 @@ export class StringParser {
 		if (this._offset > this._data.length) {
 			this._offset = this._data.length;
 		}
+		return this;
+	}
+
+	previous(): StringParser {
+		if (this._offset === 0) return this;
+		this._offset --;
 		return this;
 	}
 
@@ -124,6 +130,10 @@ export class StringParser {
 		}
 	}
 
+	navigateToEndOfWord(): StringNavigationInfos {
+		return this.navigateUntil(whiteSpaceCharacters);
+	}
+
 	get currentChar(): string | undefined {
 		if (this._offset >= this._data.length) {
 			return undefined;
@@ -141,5 +151,9 @@ export class StringParser {
 
 	get hasText(): boolean {
 		return this._data.trim().length > 0;
+	}
+
+	get previousString(): string {
+		return this._data.slice(0, this._offset);
 	}
 }

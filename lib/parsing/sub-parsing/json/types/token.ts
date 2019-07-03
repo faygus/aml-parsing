@@ -1,4 +1,4 @@
-import { BaseToken, BaseTokenWithContext } from "../../abstract/base-token";
+import { BaseToken, BaseTokenWithContext } from "../../../../abstract/token/base-token";
 import { JsonTokenType } from "./token-type";
 import { JsonKeyCxt } from "./context/key";
 import { JsonPropertyValueCxt } from "./context/value";

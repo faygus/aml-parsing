@@ -7,4 +7,6 @@ export const tokens = {
 	selfCloseToken: `/>`,
 	openObjectBracket: '{',
 	closeObjectBracket: '}',
+	openExpressionBracket: '(',
+	closeExpressionBracket: ')',
 };

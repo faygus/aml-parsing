@@ -1,17 +1,14 @@
-import { IJsonData, IJsonAttribute, IJsonAttributes } from "./json-data";
+import { AmlInterpretation, PropertyValue } from "./interpretation";
 import { StringUtils } from "../../utils/string-utils";
 
 export class AzogInterpreter {
-	private _array: IJsonData[] = [];
-	private _result: IJsonData;
+	private _array: AmlInterpretation[] = [];
+	private _result: AmlInterpretation;
 
-	addTag(tag: string): IJsonData {
+	addTag(tag: string): AmlInterpretation {
 		const parent = this.getLast();
-		const node: IJsonData = {
-			tag: StringUtils.antiCapitalize(tag),
-			attributes: {},
-			children: []
-		};
+		const node = new AmlInterpretation();
+		node.tag = StringUtils.antiCapitalize(tag);
 		if (parent) {
 			parent.children.push(node);
 		} else {
@@ -21,7 +18,7 @@ export class AzogInterpreter {
 		return this._result;
 	}
 
-	addAttribute(name: string, value: any): IJsonData {
+	addAttribute(name: string, value: PropertyValue): AmlInterpretation {
 		const last = this.getLast();
 		if (!last) return this._result;
 		last.attributes[name] = value;
@@ -32,11 +29,11 @@ export class AzogInterpreter {
 		this._array.pop();
 	}
 
-	getResult(): IJsonData {
+	getResult(): AmlInterpretation {
 		return this._result;
 	}
 
-	private getLast(): IJsonData | undefined {
+	private getLast(): AmlInterpretation | undefined {
 		if (this._array.length === 0) return undefined;
 		return this._array.slice().reverse()[0];
 	}

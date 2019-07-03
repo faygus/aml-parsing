@@ -1,9 +1,16 @@
-import { parseAmlCode } from "./lib/aml/parsing/parser";
+import { AmlParser } from "./lib/parsing/parser";
 import { parseJsonCode } from "./lib";
+import { KeyToken } from "./lib/models/json";
+import { ExpressionParser } from "./lib/parsing/sub-parsing/expression/parser";
 
+// const data = `<LabelWF text=($prop1 |     pipe1)/>`;
 
-const data = `{toto: {tata: ""`;
-const res = parseJsonCode(data);
-console.log(JSON.stringify(res.getTokenAt(15)));
+/*const data = `<LabelWF text=($prop1 |     pipe1)/>`;
+const parser = new AmlCodeParser(data);
+const res = parser.parse();
+console.log(JSON.stringify(res.interpretation));*/
 
-// console.log(JSON.stringify(res));
+const data = `<Label text=($foo | bar)/>`;
+const parser = new AmlParser(data);
+const res = parser.parse();
+console.log('res', JSON.stringify(res));

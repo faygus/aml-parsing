@@ -6,3 +6,11 @@ export enum AmlTokenType {
 	JSON_LITERAL_VALUE
 	// ...
 }
+
+const TokenType = {
+	tag: AmlTokenType.TAG,
+	attribute: {
+		name: AmlTokenType.ATTRIBUTE_NAME,
+		
+	}
+}

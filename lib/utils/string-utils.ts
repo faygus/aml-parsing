@@ -33,4 +33,4 @@ export class StringUtils {
 	}
 }
 
-export const whiteSpaceCharacters = [' ', '\t', '\n', '\r'];
+export const whiteSpaceCharacters = [' ', '\t', '\n', '\r', String.fromCharCode(160)];
