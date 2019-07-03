@@ -1,9 +1,9 @@
 import { ICodeParsingResult } from "../../../../interfaces";
-import { TokenWithContextTypes } from "./token-with-context";
 import { DiagnosticType } from "./diagnostic-type";
 import { Interpretation } from "./interpretation";
+import { Tokens } from "../../../../models/expressions";
 
 export type ExpressionParsingResult = ICodeParsingResult<
-TokenWithContextTypes,
+Tokens,
 DiagnosticType,
 Interpretation>;
