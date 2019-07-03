@@ -1,6 +1,9 @@
 import { Token, TokenWithContent, TokenWithContext, GroupOfTokens } from "./tokens";
-import { ExpressionTokens } from "./expressions";
-import { ObjectTokens } from "./json";
+import { ExpressionTokensList } from "./expressions";
+import { ObjectTokensList } from "./json";
+
+export class NodeToken extends TokenWithContent<undefined, AmlTokensList> {
+}
 
 export class TagToken extends Token {
 }
@@ -12,7 +15,7 @@ export class AttributeValueToken extends TokenWithContent<AttributeValueCxt, Att
 }
 
 
-export type AttributeValueTokenContent = ExpressionTokens | ObjectTokens | undefined;
+export type AttributeValueTokenContent = ExpressionTokensList | ObjectTokensList | undefined;
 
 // context
 
@@ -26,7 +29,7 @@ export class AttributeValueCxt {
 	}
 }
 
-export type Tokens = TagToken | AtributeNameToken | AttributeValueToken;
+export type Tokens = NodeToken | TagToken | AtributeNameToken | AttributeValueToken;
 
-export class AmlTokens extends GroupOfTokens<Tokens> {
+export class AmlTokensList extends GroupOfTokens<Tokens> {
 }

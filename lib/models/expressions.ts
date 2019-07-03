@@ -19,7 +19,7 @@ export class PipeCxt {
 // group of tokens inside an expression
 export type Tokens = VariableArgumentToken | LiteralArgumentToken | PipeToken;
 
-export class ExpressionTokens extends GroupOfTokens<Tokens> {
+export class ExpressionTokensList extends GroupOfTokens<Tokens> {
 }
 
 export class VariableIdentifier {

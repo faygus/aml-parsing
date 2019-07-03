@@ -43,7 +43,7 @@ export class Register {
 	addObjectValue(offset: number, text: string, parsingResult: ICodeParsingResult<Model.Tokens, JsonDiagnosticType, IKeyValue>): void {
 		const tokenUnit = new TokenUnit(text, offset);
 		const context = new Model.ValueContext(this._treeParser.curentKeyEdited);
-		const content = new Model.ObjectTokens(parsingResult.tokens);
+		const content = new Model.ObjectTokensList(parsingResult.tokens);
 		const token = new Model.ObjectValueToken(tokenUnit, context, content);
 		this._resultBuilder.addToken(token);
 		// TODO merge the treeParser of the parent parser ?

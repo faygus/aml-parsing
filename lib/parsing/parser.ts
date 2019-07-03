@@ -30,27 +30,17 @@ export class AmlParser extends BaseCodeParser<Model.Tokens, AmlDiagnosticType, A
 	}
 
 	protected buildResult(): void {
-		while (this._stringParser.currentChar) {
-			this.parseNewTag();
-		}
+		this.parseOpeningTag();
 	}
 
-	private parseNewTag(): void {
-		const beforeTag = this._stringParser.navigateUntil(tokens.openTagBracket);
-		const beforeTagParser = new StringParser(beforeTag.text);
-		if (beforeTagParser.hasText) {
-			const textStart = beforeTagParser.navigateToFirstNonEmptyChar().offset;
-			const text = beforeTag.text.trim();
-			// TODO add a token error ?
-		}
-		if (!beforeTag.stopPattern) {
-			return;
-		}
+	private parseOpeningTag(): void {
+		this.parseBeforeTag();
+		if (!this._stringParser.currentChar) return;
 		const closeTagToken = `/`;
 		if (this._stringParser.nextString.startsWith(closeTagToken)) {
-			this._stringParser.next(closeTagToken.length);
-			this.parseCloseTag();
-			return;
+			// TODO error, the tag can not be closed now
+			this._stringParser.navigateUntil(tokens.closeTagBracket);
+			return this.nextOperation(this.parseOpeningTag);
 		}
 		const tagInfos = this._stringParser.navigateUntil([tokens.closeTagBracket, tokens.selfCloseToken, ...whiteSpaceCharacters]);
 		const tag = tagInfos.text;
@@ -58,33 +48,34 @@ export class AmlParser extends BaseCodeParser<Model.Tokens, AmlDiagnosticType, A
 		if (tagInfos.stopPattern === tokens.selfCloseToken) {
 			// TODO this._context.removeLast();
 			return;
-		} else if (tagInfos.stopPattern === tokens.closeTagBracket) {
-			return;
 		}
-		if (!this._stringParser.currentChar) return;
-		if (this.checkCloseDeclarationTag()) return;
-		this.parseAttributeName();
+		if (tagInfos.stopPattern === tokens.closeTagBracket) {
+			this._stringParser.navigateToFirstNonEmptyChar();
+			return this.nextOperation(this.parseInsideNode);
+		}
+		this.nextOperation(this.parseAfterTag);
 	}
 
 	/**
 	 * returns true if the new opened tag is closed
 	 */
-	private checkCloseDeclarationTag(): boolean {
+	private parseAfterTag(): void {
 		this._stringParser.navigateToFirstNonEmptyChar();
 		if (this._stringParser.nextString.startsWith(tokens.selfCloseToken)) {
 			this._stringParser.next(tokens.selfCloseToken.length);
 			this._register.closeDeclarationTag();
-			return true;
+			return;
 		}
 		if (this._stringParser.nextString.startsWith(tokens.closeTagBracket)) {
 			this._stringParser.next(tokens.closeTagBracket.length);
-			return true;
+			// TODO instanciate a new parser and use recursion
+			this.nextOperation(this.parseInsideNode);
 		}
-		return false;
+		this._stringParser.navigateToFirstNonEmptyChar();
+		this.nextOperation(this.parseAttributeName);
 	}
 
 	private parseCloseTag(): void {
-		this._stringParser.navigateToFirstNonEmptyChar();
 		const infos = this._stringParser.navigateUntil([tokens.closeTagBracket, ...whiteSpaceCharacters]);
 		const offset = infos.range.start;
 		if (infos.text) {
@@ -110,21 +101,19 @@ export class AmlParser extends BaseCodeParser<Model.Tokens, AmlDiagnosticType, A
 		if ([tokens.closeTagBracket, '', undefined].indexOf(attributeNameInfos.stopPattern) >= 0) {
 			// TODO add token without value attributeName, attributeNameOffset - length
 			this._register.registerAttributeName(attributeNameOffset, attributeName);
-			return;
+			return this.nextOperation(this.parseInsideNode);
 		}
 		if (StringUtils.charIsEmpty(attributeNameInfos.stopPattern)) {
 			if (this._stringParser.navigateToFirstNonEmptyChar().currentChar !== tokens.equal) {
 				// TODO add token AttributeWithoutValue attributeName, attributeNameOffset
 				this._register.registerAttributeName(attributeNameOffset, attributeName);
-				if (this.checkCloseDeclarationTag()) return;
-				return this.parseAttributeName();
+				return (this.nextOperation(this.parseAfterTag));
 			}
 			this._stringParser.next(); // skip the equal char
 		}
 		this._register.registerAttributeName(attributeNameOffset, attributeName);
 		this._stringParser.navigateToFirstNonEmptyChar();
-		if (!this._stringParser.currentChar) return;
-		this.parseAttributeValue();
+		this.nextOperation(this.parseAttributeValue);
 	}
 
 	private parseAttributeValue(): void {
@@ -146,9 +135,7 @@ export class AmlParser extends BaseCodeParser<Model.Tokens, AmlDiagnosticType, A
 				this.parseJsonObject();
 				break;
 		}
-		if (!this._stringParser.currentChar) return;
-		if (this.checkCloseDeclarationTag()) return;
-		return this.parseAttributeName();
+		return this.nextOperation(this.parseAfterTag);
 	}
 
 	private parseJsonObject(): void {
@@ -162,6 +149,32 @@ export class AmlParser extends BaseCodeParser<Model.Tokens, AmlDiagnosticType, A
 		const parser = new ExpressionParser(this._stringParser.nextString, tokens.closeExpressionBracket);
 		const res = parser.parse();
 		this._register.registerAttributeExpressionValue(this._stringParser.offset, res);
-		this._stringParser.next(parser.offset + 1); // ignore )
+		this._stringParser.next(parser.offset + 1); // ignore ')'
+	}
+
+	private parseInsideNode(): void {
+		this.parseBeforeTag();
+		this._stringParser.previous();
+		if (this._stringParser.nextString.startsWith(tokens.closeTag)) {
+			this._stringParser.next(tokens.closeTag.length);
+			this._stringParser.navigateToFirstNonEmptyChar();
+			this.parseCloseTag();
+		} else {
+			const parser = new AmlParser(this._stringParser.nextString);
+			const res = parser.parse();
+			this._register.registerChildNode(this._stringParser.offset, res);
+			this._stringParser.next(parser.offset);
+			this.nextOperation(this.parseInsideNode);
+		}
+	}
+
+	private parseBeforeTag(): void {
+		const beforeTag = this._stringParser.navigateUntil(tokens.openTagBracket);
+		const beforeTagParser = new StringParser(beforeTag.text);
+		if (beforeTagParser.hasText) {
+			const textStart = beforeTagParser.navigateToFirstNonEmptyChar().offset;
+			const text = beforeTag.text.trim();
+			// TODO add a token error ?
+		}
 	}
 }

@@ -25,6 +25,11 @@ export class AzogInterpreter {
 		return this._result;
 	}
 
+	addChildNode(node: AmlInterpretation): AmlInterpretation {
+		this._result.children.push(node);
+		return this._result;
+	}
+
 	closeTag(): void {
 		this._array.pop();
 	}

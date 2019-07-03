@@ -149,6 +149,10 @@ export class StringParser {
 		return this._offset;
 	}
 
+	set offset(value: number) {
+		this._offset = value;
+	}
+
 	get hasText(): boolean {
 		return this._data.trim().length > 0;
 	}

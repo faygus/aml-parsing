@@ -12,8 +12,9 @@ import { ExpressionParsingResult } from "./sub-parsing/expression/types/parsing-
 import { ComplexToken } from "../abstract/token/complex-token";
 import { TokenUnit } from "../models";
 import * as Model from "../models/aml";
-import { Tokens as JsonTokens, ObjectTokens } from "../models/json";
-import { ExpressionTokens } from "../models/expressions";
+import { Tokens as JsonTokens, ObjectTokensList } from "../models/json";
+import { ExpressionTokensList } from "../models/expressions";
+import { AmlParsingResult } from "./types/parsing-result";
 
 export class Register {
 	private _treeParser = new TreeParser();
@@ -64,7 +65,7 @@ export class Register {
 		JsonTokens, JsonDiagnosticType, IKeyValue>): void {
 		const tokenUnit = new TokenUnit(jsonParsingResult.text, offset);
 		const context = this.getAttributeValueContext();
-		const content = new ObjectTokens(jsonParsingResult.tokens);
+		const content = new ObjectTokensList(jsonParsingResult.tokens);
 		const token = new Model.AttributeValueToken(tokenUnit, context, content);
 		const attributeName = this._treeParser.attributeNameEdited;
 		this._resultBuilder.addToken(token);
@@ -77,10 +78,19 @@ export class Register {
 		const attributeName = this._treeParser.attributeNameEdited;
 		const tokenUnit = new TokenUnit(data.text, offset);
 		const context = this.getAttributeValueContext();
-		const content = new ExpressionTokens(data.tokens);
+		const content = new ExpressionTokensList(data.tokens);
 		const token = new Model.AttributeValueToken(tokenUnit, context, content);
 		this._resultBuilder.addToken(token);
 		const interpretation = this._interpreter.addAttribute(attributeName, data.interpretation);
+		this._resultBuilder.setInterpretation(interpretation);
+	}
+
+	registerChildNode(offset: number, data: AmlParsingResult): void {
+		const tokenUnit = new TokenUnit(data.text, offset);
+		const content = new Model.AmlTokensList(data.tokens);
+		const token = new Model.NodeToken(tokenUnit, undefined, content);
+		this._resultBuilder.addToken(token);
+		const interpretation = this._interpreter.addChildNode(data.interpretation);
 		this._resultBuilder.setInterpretation(interpretation);
 	}
 

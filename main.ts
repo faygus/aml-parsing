@@ -10,7 +10,9 @@ const parser = new AmlCodeParser(data);
 const res = parser.parse();
 console.log(JSON.stringify(res.interpretation));*/
 
-const data = `<Label text=($foo | bar)/>`;
+const data = `<Layout direction="row">
+	<Label text=($foo | bar)/>
+</Layout>`;
 const parser = new AmlParser(data);
 const res = parser.parse();
 console.log('res', JSON.stringify(res));

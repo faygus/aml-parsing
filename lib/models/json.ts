@@ -6,8 +6,7 @@ export class KeyToken extends Token {
 export class LiteralValueToken extends TokenWithContext<ValueContext> {
 }
 
-export class ObjectValueToken extends TokenWithContent<ValueContext, ObjectTokens> {
-
+export class ObjectValueToken extends TokenWithContent<ValueContext, ObjectTokensList> {
 }
 
 export class ValueContext {
@@ -18,5 +17,5 @@ export class ValueContext {
 export type Tokens = KeyToken | LiteralValueToken | ObjectValueToken;
 
 // group of tokens inside a json object
-export class ObjectTokens extends GroupOfTokens<Tokens> {
+export class ObjectTokensList extends GroupOfTokens<Tokens> {
 }

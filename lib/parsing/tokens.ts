@@ -5,6 +5,7 @@ export const tokens = {
 	quote: '"',
 	equal: '=',
 	selfCloseToken: `/>`,
+	closeTag: `</`,
 	openObjectBracket: '{',
 	closeObjectBracket: '}',
 	openExpressionBracket: '(',
