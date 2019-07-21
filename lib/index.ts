@@ -5,4 +5,6 @@ export { parseAmlCode } from "./parsing/parser";
 export { Range } from "./utils/range";
 export * from "./parsing";
 export * from "./interfaces";
-export * from "./models";
+
+import * as Model from "./models";
+export { Model };

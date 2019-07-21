@@ -35,7 +35,10 @@ export class AmlParser extends BaseCodeParser<Model.Tokens, AmlDiagnosticType, A
 
 	private parseOpeningTag(): void {
 		this.parseBeforeTag();
-		if (!this._stringParser.currentChar) return;
+		if (!this._stringParser.currentChar) {
+			this._register.registerTag(this._stringParser.offset, '');
+			return;
+		}
 		const closeTagToken = `/`;
 		if (this._stringParser.nextString.startsWith(closeTagToken)) {
 			// TODO error, the tag can not be closed now

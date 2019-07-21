@@ -21,13 +21,26 @@ export abstract class TokenWithContext<T> extends Token {
 	}
 }
 
-export abstract class TokenWithContent<T, U extends GroupOfTokens<any>> extends TokenWithContext<T> {
+export abstract class TokenWithContent<T, U extends GroupOfTokens<any> | undefined> extends TokenWithContext<T> {
 	constructor(tokenUnit: TokenUnit, context: T, public content: U) {
 		super(tokenUnit, context);
 	}
 }
 
-export abstract class GroupOfTokens<T> {
+export abstract class GroupOfTokens<T extends Token> {
 	constructor(public tokens: T[]) {
+	}
+
+	getTokenAt(offset: number): T {
+		for (const tokenWithContext of this.tokens) {
+			const token = tokenWithContext.tokenUnit;
+			if (offset < token.range.start) {
+				return undefined;
+			}
+			if (offset <= token.range.end) {
+				return tokenWithContext;
+			}
+		}
+		return undefined;
 	}
 }

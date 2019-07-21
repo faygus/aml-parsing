@@ -58,6 +58,8 @@ export class ExpressionParser extends BaseCodeParser<
 		if (firstChar === tokens.pipe) {
 			this._stringParser.next().navigateToFirstNonEmptyChar();
 			this.nextOperation(this.parsePipeName);
+		} else {
+			this._stringParser.navigateUntil(this._endingCharacter);
 		}
 	}
 
