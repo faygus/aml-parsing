@@ -1,11 +1,9 @@
-import { ParsingResultBuilder } from "../../../abstract/base-parsing-result-builder";
+import { ParsingResultBuilder, TokenUnit, ICodeParsingResult } from "code-parsing";
 import * as Model from "../../../models/json";
-import { TokenUnit } from "../../../models/tokens";
 import { JsonInterpreter } from "./interpreter/interpreter";
 import { IKeyValue } from "./interpreter/key-value";
 import { JsonTreeParser } from "./tree-parser";
 import { JsonDiagnosticType } from "./types/diagnostic-type";
-import { ICodeParsingResult } from "../../../interfaces";
 
 export class Register {
 

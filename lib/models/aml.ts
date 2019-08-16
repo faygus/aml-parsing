@@ -1,4 +1,4 @@
-import { Token, TokenWithContent, TokenWithContext, GroupOfTokens } from "./tokens";
+import { TokenWithContent, TokenWithContext, GroupOfTokens, Token } from "code-parsing";
 import { ExpressionTokensList } from "./expressions";
 import { ObjectTokensList } from "./json";
 

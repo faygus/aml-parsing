@@ -1,6 +1,4 @@
-import { BaseCodeParser } from "../../../abstract/base-code-parser";
-import { ICodeParser as ICodeParserFunction } from "../../../interfaces/i-code-parser";
-import { ICodeParsingResult } from "../../../interfaces/i-code-parsing-result";
+import { BaseCodeParser, ICodeParsingResult } from "code-parsing";
 import { Tokens } from "../../../models/json";
 import { nonEscapedValidator } from "../../../utils/escape";
 import { StringParser } from "../../../utils/string-parser";
@@ -10,18 +8,6 @@ import { Register } from "./register";
 import { tokens } from "./tokens";
 import { JsonDiagnostic } from "./types/diagnostic";
 import { JsonDiagnosticType } from "./types/diagnostic-type";
-
-export const parseJsonCode: ICodeParserFunction<
-	Tokens,
-	JsonDiagnosticType,
-	IKeyValue> =
-	(data: string): ICodeParsingResult<
-		Tokens,
-		JsonDiagnosticType,
-		IKeyValue> => {
-		const parser = new JsonCodeParser(data);
-		return parser.parse();
-	};
 
 export class JsonCodeParser extends BaseCodeParser<
 	Tokens,

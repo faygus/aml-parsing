@@ -1,6 +1,4 @@
-import { BaseCodeParser } from "../abstract/base-code-parser";
-import { ICodeParser as ICodeParserFunction } from "../interfaces/i-code-parser";
-import { ICodeParsingResult } from "../interfaces/i-code-parsing-result";
+import { BaseCodeParser } from "code-parsing";
 import { nonEscapedValidator } from "../utils/escape";
 import { StringParser } from "../utils/string-parser";
 import { StringUtils, whiteSpaceCharacters } from "../utils/string-utils";
@@ -11,15 +9,6 @@ import { JsonCodeParser } from "./sub-parsing/json/json-parser";
 import { tokens } from "./tokens";
 import { AmlDiagnosticType } from "./types/diagnostic-type";
 import * as Model from "../models/aml";
-
-export const parseAmlCode: ICodeParserFunction<
-	Model.Tokens,
-	AmlDiagnosticType,
-	AmlInterpretation> =
-	(data: string): ICodeParsingResult<Model.Tokens, AmlDiagnosticType, AmlInterpretation> => {
-		const parser = new AmlParser(data);
-		return parser.parse();
-	};
 
 export class AmlParser extends BaseCodeParser<Model.Tokens, AmlDiagnosticType, AmlInterpretation> {
 	private _register: Register;

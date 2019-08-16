@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "start": "ts-node main.ts",
-    "build": "tsc -p ./lib && ts-node script.ts"
+		"build": "tsc -p ./lib && ts-node script.ts",
+		"link": "npm link code-parsing"
   },
   "author": "",
   "license": "ISC",

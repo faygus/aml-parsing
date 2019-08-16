@@ -1,19 +1,14 @@
-import { ParsingResultBuilder } from "../abstract/base-parsing-result-builder";
-import { ICodeParsingResult } from "../interfaces/i-code-parsing-result";
+import { ICodeParsingResult, ParsingResultBuilder, TokenUnit } from "code-parsing";
+import * as Model from "../models/aml";
+import { ExpressionTokensList } from "../models/expressions";
+import { ObjectTokensList, Tokens as JsonTokens } from "../models/json";
+import { AmlInterpretation } from "./interpreter/interpretation";
+import { AzogInterpreter } from "./interpreter/interpreter";
+import { ExpressionParsingResult } from "./sub-parsing/expression/types/parsing-result";
 import { IKeyValue } from "./sub-parsing/json/interpreter/key-value";
 import { JsonDiagnosticType } from "./sub-parsing/json/types/diagnostic-type";
-import { JsonTokenType } from "./sub-parsing/json/types/token-type";
-import { AzogInterpreter } from "./interpreter/interpreter";
-import { AmlInterpretation } from "./interpreter/interpretation";
 import { TreeParser } from "./tree-parser";
 import { AmlDiagnosticType } from "./types";
-import { AmlTokenType } from "./types/token-type";
-import { ExpressionParsingResult } from "./sub-parsing/expression/types/parsing-result";
-import { ComplexToken } from "../abstract/token/complex-token";
-import { TokenUnit } from "../models";
-import * as Model from "../models/aml";
-import { Tokens as JsonTokens, ObjectTokensList } from "../models/json";
-import { ExpressionTokensList } from "../models/expressions";
 import { AmlParsingResult } from "./types/parsing-result";
 
 export class Register {
@@ -112,11 +107,5 @@ export class Register {
 		const tag = this._treeParser.currentElement.tag;
 		const res = new Model.AttributeValueCxt(attributeName, tag);
 		return res;
-	}
-}
-
-class AttributeExpressionValueToken extends ComplexToken<AmlTokenType.ATTRIBUTE_VALUE, ExpressionParsingResult> {
-	constructor(offset: number, content: ExpressionParsingResult) {
-		super(offset, AmlTokenType.ATTRIBUTE_VALUE, content);
 	}
 }

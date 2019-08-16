@@ -1,6 +1,5 @@
-import { ParsingResultBuilder } from "../../../abstract/base-parsing-result-builder";
 import * as Model from "../../../models/expressions";
-import { TokenUnit } from "../../../models/tokens";
+import { TokenUnit, ParsingResultBuilder } from "code-parsing";
 import { DiagnosticType } from "./types/diagnostic-type";
 import { Interpretation } from "./types/interpretation";
 

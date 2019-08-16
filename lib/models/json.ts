@@ -1,4 +1,4 @@
-import { Token, GroupOfTokens, TokenWithContext, TokenWithContent } from "./tokens";
+import { Token, GroupOfTokens, TokenWithContext, TokenWithContent } from "code-parsing";
 
 export class KeyToken extends Token {
 }

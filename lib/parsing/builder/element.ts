@@ -1,5 +1,8 @@
 import { AmlElement, AmlAttribute, IAmlAttributes } from "../types/context/utils/element";
-import { BaseBuilder } from "../../abstract/builder";
+
+abstract class BaseBuilder<T> {
+	abstract getResult(): T;
+}
 
 export class AmlElementBuilder extends BaseBuilder<AmlElement> {
 

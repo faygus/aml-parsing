@@ -1,4 +1,4 @@
-import { Token, GroupOfTokens, TokenWithContext } from "./tokens";
+import { Token, GroupOfTokens, TokenWithContext } from "code-parsing";
 
 export class VariableArgumentToken extends Token {
 }

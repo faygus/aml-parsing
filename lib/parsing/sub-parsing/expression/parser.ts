@@ -1,4 +1,4 @@
-import { BaseCodeParser } from "../../../abstract/base-code-parser";
+import { BaseCodeParser } from "code-parsing";
 import { nonEscapedValidator } from "../../../utils/escape";
 import { whiteSpaceCharacters } from "../../../utils/string-utils";
 import { Register } from "./register";
