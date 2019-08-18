@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "ts-node main.ts",
 		"build": "tsc -p ./lib && ts-node script.ts",
-		"link": "npm link code-parsing"
+    "demo": "ts-node --project ./demo/tsconfig.json ./demo/index.ts",
+		"link": "npm link code-parsing && npm link data-interface-parser"
   },
   "author": "",
   "license": "ISC",
